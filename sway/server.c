@@ -486,7 +486,7 @@ bool server_start(struct sway_server *server) {
 			if (child == 0) {
 				setsid();
 
-				execlp("sh", "sh", "-c", config->xwayland_command, (void *)NULL);
+				execlp(config->xwayland_command, config->xwayland_command, (void *)NULL);
 				sway_log_errno(SWAY_ERROR, "execve failed");
 				_exit(0); // Close child process
 			} else if (child < 0) {
