@@ -108,6 +108,7 @@ static const struct cmd_handler config_handlers[] = {
 	{ "swaynag_command", cmd_swaynag_command },
 	{ "workspace_layout", cmd_workspace_layout },
 	{ "xwayland", cmd_xwayland },
+	{ "xwayland_command", cmd_xwayland_command },
 };
 
 /* Runtime-only commands. Keep alphabetized */

@@ -174,6 +174,7 @@ void free_config(struct sway_config *config) {
 	free(config->floating_scroll_left_cmd);
 	free(config->floating_scroll_right_cmd);
 	free(config->font);
+	free(config->xwayland_command);
 	free(config->swaybg_command);
 	free(config->swaynag_command);
 	free((char *)config->current_config_path);
@@ -257,6 +258,7 @@ static void config_defaults(struct sway_config *config) {
 	config->focus_on_window_activation = FOWA_URGENT;
 	config->popup_during_fullscreen = POPUP_SMART;
 	config->xwayland = XWAYLAND_MODE_LAZY;
+	if (!(config->xwayland_command = strdup(""))) goto cleanup;
 
 	config->titlebar_border_thickness = 1;
 	config->titlebar_h_padding = 5;
@@ -480,6 +482,9 @@ bool load_main_config(const char *file, bool is_active, bool validating) {
 		sway_log(SWAY_DEBUG, "xwayland will remain %s",
 				old_config->xwayland ? "enabled" : "disabled");
 		config->xwayland = old_config->xwayland;
+
+		config->xwayland_command = strdup(old_config->xwayland_command);
+
 
 		// primary_selection can only be enabled/disabled at launch
 		sway_log(SWAY_DEBUG, "primary_selection will remain %s",

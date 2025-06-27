@@ -457,25 +457,43 @@ void server_fini(struct sway_server *server) {
 bool server_start(struct sway_server *server) {
 #if WLR_HAS_XWAYLAND
 	if (config->xwayland != XWAYLAND_MODE_DISABLED) {
-		sway_log(SWAY_DEBUG, "Initializing Xwayland (lazy=%d)",
-				config->xwayland == XWAYLAND_MODE_LAZY);
-		server->xwayland.wlr_xwayland =
-			wlr_xwayland_create(server->wl_display, server->compositor,
+		if (!strcmp(config->xwayland_command, "")) {
+			sway_log(SWAY_DEBUG, "Initializing Xwayland (lazy=%d)",
 					config->xwayland == XWAYLAND_MODE_LAZY);
-		if (!server->xwayland.wlr_xwayland) {
-			sway_log(SWAY_ERROR, "Failed to start Xwayland");
-			unsetenv("DISPLAY");
+			server->xwayland.wlr_xwayland =
+				wlr_xwayland_create(server->wl_display, server->compositor,
+						config->xwayland == XWAYLAND_MODE_LAZY);
+			if (!server->xwayland.wlr_xwayland) {
+				sway_log(SWAY_ERROR, "Failed to start Xwayland");
+				unsetenv("DISPLAY");
+			} else {
+				wl_signal_add(&server->xwayland.wlr_xwayland->events.new_surface,
+					&server->xwayland_surface);
+				server->xwayland_surface.notify = handle_xwayland_surface;
+				wl_signal_add(&server->xwayland.wlr_xwayland->events.ready,
+					&server->xwayland_ready);
+				server->xwayland_ready.notify = handle_xwayland_ready;
+
+				setenv("DISPLAY", server->xwayland.wlr_xwayland->display_name, true);
+
+				/* xcursor configured by the default seat */
+			}
 		} else {
-			wl_signal_add(&server->xwayland.wlr_xwayland->events.new_surface,
-				&server->xwayland_surface);
-			server->xwayland_surface.notify = handle_xwayland_surface;
-			wl_signal_add(&server->xwayland.wlr_xwayland->events.ready,
-				&server->xwayland_ready);
-			server->xwayland_ready.notify = handle_xwayland_ready;
+			sway_log(SWAY_DEBUG, "Initializing Xwayland with custom command %s",
+					config->xwayland_command);
+			
+			pid_t child = fork();
+			if (child == 0) {
+				setsid();
 
-			setenv("DISPLAY", server->xwayland.wlr_xwayland->display_name, true);
+				execlp("sh", "sh", "-c", config->xwayland_command, (void *)NULL);
+				sway_log_errno(SWAY_ERROR, "execve failed");
+				_exit(0); // Close child process
+			} else if (child < 0) {
+				sway_log(SWAY_DEBUG, "fork() failed");
+			}
 
-			/* xcursor configured by the default seat */
+			setenv("DISPLAY", ":0", false);
 		}
 	}
 #endif
