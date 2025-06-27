@@ -99,6 +99,9 @@ The following commands may only be used in the configuration file.
 	machines, it may be desirable to have Xwayland started immediately by
 	using _force_ instead of _enable_.
 
+*xwayland_command* <command>
+	Executes custom command instead of built-in xwayland.
+
 ## Runtime only commands
 The following commands cannot be used directly in the configuration file.
 They are expected to be used with *bindsym* or at runtime through *swaymsg*(1).
