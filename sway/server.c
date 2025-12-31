@@ -508,7 +508,7 @@ void server_fini(struct sway_server *server) {
 bool server_start(struct sway_server *server) {
 #if WLR_HAS_XWAYLAND
 	if (config->xwayland != XWAYLAND_MODE_DISABLED) {
-		if (strcmp(config->xwayland_command, "")) {
+		if (!strcmp(config->xwayland_command, "")) {
 			sway_log(SWAY_DEBUG, "Initializing Xwayland (lazy=%d)",
 					config->xwayland == XWAYLAND_MODE_LAZY);
 			server->xwayland.wlr_xwayland =

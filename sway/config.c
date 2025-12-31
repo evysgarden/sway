@@ -483,6 +483,9 @@ bool load_main_config(const char *file, bool is_active, bool validating) {
 				old_config->xwayland ? "enabled" : "disabled");
 		config->xwayland = old_config->xwayland;
 
+		// xwayland_command can only be set at launch
+		sway_log(SWAY_DEBUG, "xwayland_command will remain %s",
+				old_config->xwayland_command);
 		config->xwayland_command = strdup(old_config->xwayland_command);
 
 

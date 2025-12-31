@@ -13,7 +13,7 @@ struct cmd_results *cmd_xwayland_command(int argc, char **argv) {
 #ifdef WLR_HAS_XWAYLAND
 	char* xwayland_command = join_args(argv, argc);
 
-	if (config->reloading && !strcmp(xwayland_command, config->xwayland_command)) {
+	if (config->reloading && strcmp(xwayland_command, config->xwayland_command)) {
 		return cmd_results_new(CMD_FAILURE,
 				"xwayland_command can only be set at launch");
 	}
